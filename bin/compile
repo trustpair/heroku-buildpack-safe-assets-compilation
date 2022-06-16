@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -e            # fail fast
+set -o pipefail   # don't ignore exit codes when piping output
+
+# Configure directories
+BUILD_DIR=$1
+ASSETS_DIR=$BUILD_DIR/public/assets
+ENV_DIR=$3
+DENYLIST_REGEXP=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+
+if [ -d "$ENV_DIR" ]; then
+  for e in $(ls $ENV_DIR); do
+    echo "$e" | grep -qvE "$DENYLIST_REGEXP" &&
+      export "$e=$(cat $ENV_DIR/$e)"
+    :
+  done
+fi  
+
+rm -f $ASSETS_DIR/.sprockets-manifest-DISABLE-ASSET-PRECOMPILE.json
+
+cd $BUILD_DIR
+gem install activerecord-nulldb-adapter
+DB_ADAPTER='nulldb' DATABASE_URL='null' bundle exec rake assets:precompile
