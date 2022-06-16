@@ -20,5 +20,4 @@ fi
 rm -f $ASSETS_DIR/.sprockets-manifest-DISABLE-ASSET-PRECOMPILE.json
 
 cd $BUILD_DIR
-gem install activerecord-nulldb-adapter
 DB_ADAPTER='nulldb' DATABASE_URL='null' bundle exec rake assets:precompile
